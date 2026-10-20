@@ -49,7 +49,35 @@ jobs:
           t="${IMAGE}:latest,${IMAGE}:${GITHUB_SHA::7}"
           if [ "${GITHUB_REF_TYPE}" = tag ]; then t="${t},${IMAGE}:${GITHUB_REF_NAME}"; fi
           echo "list=${t}" >> "$GITHUB_OUTPUT"
-      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+      - name: Build amd64 for smoke test
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: image-talos-backup
+          platforms: linux/amd64
+          load: true
+          provenance: false
+          tags: talos-backup:smoke
+          build-args: |
+            CGO_ENABLED=0
+            DEEPCOPY_VERSION=v0.5.8
+            GOLANGCILINT_VERSION=v2.11.4
+            GOFUMPT_VERSION=v0.9.2
+            TOOLCHAIN=docker.io/golang:1.26.9-alpine
+            GOTOOLCHAIN=local
+      - name: Smoke test (binary must be static and start)
+        run: |
+          id=$(docker create talos-backup:smoke)
+          docker cp "${id}:/talos-backup" ./talos-backup-smoke
+          docker rm "${id}" >/dev/null
+          file ./talos-backup-smoke
+          file ./talos-backup-smoke | grep -q 'statically linked'
+          # Without configuration it must fail in the program, not in exec.
+          rc=0; docker run --rm talos-backup:smoke >/dev/null 2>&1 || rc=$?
+          echo "exit code ${rc}"
+          test "${rc}" -ne 126 -a "${rc}" -ne 127
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           target: image-talos-backup
@@ -57,6 +85,7 @@ jobs:
           push: true
           tags: ${{ steps.tags.outputs.list }}
           build-args: |
+            CGO_ENABLED=0
             DEEPCOPY_VERSION=v0.5.8
             GOLANGCILINT_VERSION=v2.11.4
             GOFUMPT_VERSION=v0.9.2
