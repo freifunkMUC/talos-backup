@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "postUpdateOptions": ["gomodTidy"],
+  "automerge": false,
+  "dockerfile": { "enabled": true },
+  "github-actions": { "pinDigests": true },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Go version in go.mod, Makefile, Dockerfile args and workflow",
+      "managerFilePatterns": ["/^go\\.mod$/", "/^Makefile$/", "/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "^go (?<currentValue>\\d+\\.\\d+\\.\\d+)$",
+        "GO_VERSION \\?= (?<currentValue>\\d+\\.\\d+\\.\\d+)",
+        "GO_VERSION: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"",
+        "golang:(?<currentValue>\\d+\\.\\d+\\.\\d+)-alpine"
+      ],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin"],
+      "groupName": "non-major updates",
+      "matchManagers": ["gomod", "dockerfile", "github-actions", "custom.regex"]
+    }
+  ]
+}
