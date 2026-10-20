@@ -9,9 +9,9 @@ ARG TOOLCHAIN=scratch
 # cleaned up specs and compiled versions
 FROM scratch AS generate
 
-FROM ghcr.io/siderolabs/ca-certificates:v1.12.0 AS image-ca-certificates
+FROM ghcr.io/siderolabs/ca-certificates:v1.14.0 AS image-ca-certificates
 
-FROM ghcr.io/siderolabs/fhs:v1.12.0 AS image-fhs
+FROM ghcr.io/siderolabs/fhs:v1.14.0 AS image-fhs
 
 # runs markdownlint
 FROM docker.io/oven/bun:1.3.11-alpine AS lint-markdown
