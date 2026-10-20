@@ -1,5 +1,18 @@
 # talos-backup
 
+## FFMUC fork
+
+This is the freifunkMUC fork of [siderolabs/talos-backup](https://github.com/siderolabs/talos-backup).
+Upstream has not tagged a release since v0.1.0-beta.3 and its `latest` image lags behind its dependencies.
+The fork keeps `main` close to upstream and adds:
+
+- Current Go (1.26.9), dependencies (Talos 1.14, minio-go 7.4) and base images, with no findings from `govulncheck`.
+- An image at `ghcr.io/freifunkmuc/talos-backup` (linux/amd64 and linux/arm64), built by GitHub Actions on every push to `main` and every `v*` tag, tagged `latest`, the short commit and the git tag.
+- Renovate for Go modules, Docker images, GitHub Actions and the Go version.
+- The upstream workflows are removed, because they need siderolabs infrastructure.
+
+The rest of this file is the upstream documentation.
+
 talos-backup is a dead simple backup tool for Talos Linux-based Kubernetes clusters.
 The goal is simple: run this as a cronjob in a desire cluster, take an etcd snapshot, push said snapshot to s3.
 
